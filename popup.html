@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Product Data Scraper</title>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    button { padding: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Product Data Scraper</h1>
+  <button id="scrapeButton">Scrape Product Data</button>
+  <script>
+    document.getElementById('scrapeButton').addEventListener('click', () => {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        chrome.scripting.executeScript({
+          target: { tabId: tabs[0].id },
+          function: scrapeProductData
+        });
+      });
+    });
+
+    function scrapeProductData() {
+      const productName = document.querySelector('h1.product-title')?.innerText || 'N/A';
+      const brandName = document.querySelector('.brand-name')?.innerText || 'N/A';
+      const price = document.querySelector('.price')?.innerText || 'N/A';
+
+      const productData = {
+        productName,
+        brandName,
+        price
+      };
+
+      console.log('Scraped Product Data:', productData);
+
+      fetch('https://your-llm-endpoint.com/api', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(productData)
+      })
+      .then(response => response.json())
+      .then(data => console.log('LLM Response:', data))
+      .catch(error => console.error('Error:', error));
+    }
+  </script>
+</body>
+</html>
