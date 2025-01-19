@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Product Data Scraper",
+  "version": "1.0",
+  "description": "Scrapes product data from a product page and sends it to an LLM.",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}

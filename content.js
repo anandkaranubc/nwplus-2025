@@ -1,26 +1,51 @@
 function scrapeProductData() {
-  const productName = document.querySelector('h1.product-title')?.innerText || 'N/A';
-  const brandName = document.querySelector('.brand-name')?.innerText || 'N/A';
-  const price = document.querySelector('.price')?.innerText || 'N/A';
+  // Select all spans with the class 'a-text-bold'
+  const boldElements = document.querySelectorAll('.a-text-bold');
+
+  let countryOfOrigin = 'N/A';
+  let productDimensions = 'N/A';  // Fixed typo: 'productDimentions' -> 'productDimensions'
+
+  boldElements.forEach((boldElement) => {
+    if (boldElement.innerText.includes('Country of origin')) {
+      const valueElement = boldElement.nextElementSibling;
+      if (valueElement) {
+        countryOfOrigin = valueElement.innerText;
+      }
+    }
+    if (boldElement.innerText.includes('Product Dimensions')) {
+      const valueElement = boldElement.nextElementSibling;
+      if (valueElement) {
+        productDimensions = valueElement.innerText;
+      }
+    }
+  });
+
+  const ingredientsContainer = document.querySelector('#important-information .a-section.content > p:nth-child(3)');
+
+  let ingredients = 'N/A';
+  if (ingredientsContainer) {
+    ingredients = ingredientsContainer.innerText.trim();
+  }
+
+  let companyName = 'N/A';
+  const anchorElement = document.querySelector('#bylineInfo');
+  if (anchorElement) {
+    const fullText = anchorElement.textContent;
+    companyName = fullText.replace("Visit the ", "").replace(" Store", "");
+  }
+
+  const productTitle = document.querySelector('#productTitle')?.innerText || 'N/A';
+  const userLocation = 'Vancouver, BC, Canada';
 
   return {
-    productName,
-    brandName,
-    price
+    productTitle,
+    userLocation,
+    countryOfOrigin,
+    productDimensions,
+    ingredients,
+    companyName,
   };
 }
 
 const productData = scrapeProductData();
 console.log('Scraped Product Data:', productData);
-
-// Send the data to your LLM endpoint
-fetch('https://your-llm-endpoint.com/api', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify(productData)
-})
-.then(response => response.json())
-.then(data => console.log('LLM Response:', data))
-.catch(error => console.error('Error:', error));
