@@ -14,6 +14,7 @@ document.getElementById('analyzeBtn').addEventListener('click', () => {
   loadingDiv.style.display = 'block';
 
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    let result = {};
     if (!tabs || tabs.length === 0) {
       console.log("No active tab found");
       loadingDiv.style.display = 'none';
@@ -50,6 +51,27 @@ document.getElementById('analyzeBtn').addEventListener('click', () => {
         const productData = injectedResults[0].result;
         console.log("Product data:", productData);
 
+        text = `A user living in ${productData.userLocation} is getting a product shipped from ${productData.countryOfOrigin}. It is a ${productData.productTitle}. It has dimensions ${productData.productDimensions}. It is made with the following materials: ${productData.ingredients}. It is from the company ${productData.companyName}. How sustainable is this action?`
+        fetch(
+          `http://127.0.0.1:5000/classify?text=${encodeURIComponent(text)}`
+        )
+          .then((response) => {
+            console.log("Response received:", response);
+            return response.json();
+          })
+          .then((data) => {
+            console.log("Parsed JSON data:", data);
+            result = data.results[0];
+            console.log("First result:", result);
+            // document.getElementById("output").textContent = `Label: ${result.label
+            //   }, Score: ${result.score.toFixed(4)}`;
+          })
+          .catch((err) => {
+            console.error("Fetch error:", err);
+            document.getElementById("output").textContent =
+              "Error: " + err.message;
+          });
+
         // Send API request
         fetch('http://localhost:3000/get_score', {
           method: 'POST',
@@ -58,39 +80,39 @@ document.getElementById('analyzeBtn').addEventListener('click', () => {
           },
           body: JSON.stringify(productData)
         })
-        .then(response => response.json())
-        .then(data => {
-          console.log("API response:", data);
+          .then(response => response.json())
+          .then(data => {
+            console.log("API response:", data);
 
-          // Hide the loading GIF
-          loadingDiv.style.display = 'none';
+            // Hide the loading GIF
+            loadingDiv.style.display = 'none';
 
-          // Show the avg and result sections
-          avgDiv.style.display = 'block';
-          resultDiv.style.display = 'block';
+            // Show the avg and result sections
+            avgDiv.style.display = 'block';
+            resultDiv.style.display = 'block';
 
-          // Render the data in the avg and result divs
-          renderSustainabilityDashboard(data);
-        })
-        .catch(error => {
-          console.log("API error:", error.message);
-          loadingDiv.style.display = 'none';
-          analyzeBtn.style.display = 'block'; // Show button back in case of error
-          resultDiv.style.display = 'block';
-          resultDiv.textContent = 'Error: ' + error.message;
-        });
+            // Render the data in the avg and result divs
+            renderSustainabilityDashboard(data, result);
+          })
+          .catch(error => {
+            console.log("API error:", error.message);
+            loadingDiv.style.display = 'none';
+            analyzeBtn.style.display = 'block'; // Show button back in case of error
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = 'Error: ' + error.message;
+          });
       });
     });
   });
 });
 
-function renderSustainabilityDashboard(data) {
+function renderSustainabilityDashboard(data, result) {
   const avgDiv = document.getElementById('avg'); // Target the avg div
   const resultDiv = document.getElementById('result'); // Target the result div
   avgDiv.innerHTML = ''; // Clear previous content in avg div
   resultDiv.innerHTML = ''; // Clear previous content in result div
 
-  let totalScore = 0; // Initialize total score
+  let totalScore = 0;
 
   // Calculate the total score
   Object.entries(data).forEach(([_, { score }]) => {
@@ -120,11 +142,11 @@ function renderSustainabilityDashboard(data) {
 
   // Determine the message based on the average score
   const avgMessage =
-  averageScore < 40
-    ? "This product is Silly 😩"
-    : averageScore < 70
-    ? "This product is kind of Silly 🫣"
-    : "This product is not Silly 🙂‍↕️";
+    averageScore < 40
+      ? "This product is Silly 😩"
+      : averageScore < 70
+        ? "This product is kind of Silly 🫣"
+        : "This product is not Silly 🙂‍↕️";
 
   // Create and append the message under the circular progress
   const messageDiv = document.createElement('div');
