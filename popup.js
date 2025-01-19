@@ -70,10 +70,6 @@ function renderSustainabilityDashboard(data) {
         <span class="category-name">${category}</span>
         <span class="score">${score}/100</span>
       </div>
-      <div class="progress-bar">
-        <div class="progress ${score >= 80 ? 'high' : score >= 60 ? 'medium' : 'low'}" 
-             style="width: ${score}%"></div>
-      </div>
       <div class="reason">${reason}</div>
     `;
     result.appendChild(div);

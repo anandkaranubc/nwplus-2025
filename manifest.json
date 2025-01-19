@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Product Data Scraper",
+  "name": "Silly",
   "version": "1.0",
   "description": "Scrapes product data from a product page and sends it to an LLM.",
   "permissions": [
@@ -11,7 +11,9 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": "leaf.png",
+    "default_width": 600
   },
   "content_scripts": [
     {
