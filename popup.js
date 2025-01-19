@@ -52,6 +52,55 @@ document.getElementById('analyzeBtn').addEventListener('click', () => {
         console.log("Product data:", productData);
 
         text = `A user living in ${productData.userLocation} is getting a product shipped from ${productData.countryOfOrigin}. It is a ${productData.productTitle}. It has dimensions ${productData.productDimensions}. It is made with the following materials: ${productData.ingredients}. It is from the company ${productData.companyName}. How sustainable is this action?`
+        // fetch(
+        //   `http://127.0.0.1:5000/classify?text=${encodeURIComponent(text)}`
+        // )
+        //   .then((response) => {
+        //     console.log("Response received:", response);
+        //     return response.json();
+        //   })
+        //   .then((data) => {
+        //     console.log("Parsed JSON data:", data);
+        //     const result_score = data.results[0];
+        //     console.log("First result:", result);
+        //     // document.getElementById("output").textContent = `Label: ${result.label
+        //     //   }, Score: ${result.score.toFixed(4)}`;
+        //   })
+        //   .catch((err) => {
+        //     console.error("Fetch error:", err);
+        //     document.getElementById("output").textContent =
+        //       "Error: " + err.message;
+        //   });
+
+        // // Send API request
+        // fetch('http://localhost:3000/get_score', {
+        //   method: 'POST',
+        //   headers: {
+        //     'Content-Type': 'application/json'
+        //   },
+        //   body: JSON.stringify(productData)
+        // })
+        //   .then(response => response.json())
+        //   .then(data => {
+        //     console.log("API response:", data);
+
+        //     // Hide the loading GIF
+        //     loadingDiv.style.display = 'none';
+
+        //     // Show the avg and result sections
+        //     avgDiv.style.display = 'block';
+        //     resultDiv.style.display = 'block';
+
+        //     // Render the data in the avg and result divs
+        //     renderSustainabilityDashboard(data, result);
+        //   })
+        //   .catch(error => {
+        //     console.log("API error:", error.message);
+        //     loadingDiv.style.display = 'none';
+        //     analyzeBtn.style.display = 'block'; // Show button back in case of error
+        //     resultDiv.style.display = 'block';
+        //     resultDiv.textContent = 'Error: ' + error.message;
+        //   });
         fetch(
           `http://127.0.0.1:5000/classify?text=${encodeURIComponent(text)}`
         )
@@ -61,46 +110,44 @@ document.getElementById('analyzeBtn').addEventListener('click', () => {
           })
           .then((data) => {
             console.log("Parsed JSON data:", data);
-            result = data.results[0];
-            console.log("First result:", result);
-            // document.getElementById("output").textContent = `Label: ${result.label
-            //   }, Score: ${result.score.toFixed(4)}`;
+            const result_score = data.results[0];
+            console.log("First result:", result_score);
+            // Pass result_score to the next fetch and render function
+            fetch('http://localhost:3000/get_score', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(productData)
+            })
+              .then(response => response.json())
+              .then(data => {
+                console.log("API response:", data);
+        
+                // Hide the loading GIF
+                loadingDiv.style.display = 'none';
+        
+                // Show the avg and result sections
+                avgDiv.style.display = 'block';
+                resultDiv.style.display = 'block';
+        
+                // Pass data and result_score to renderSustainabilityDashboard
+                renderSustainabilityDashboard(data, result_score);
+              })
+              .catch(error => {
+                console.log("API error:", error.message);
+                loadingDiv.style.display = 'none';
+                analyzeBtn.style.display = 'block'; // Show button back in case of error
+                resultDiv.style.display = 'block';
+                resultDiv.textContent = 'Error: ' + error.message;
+              });
           })
           .catch((err) => {
             console.error("Fetch error:", err);
             document.getElementById("output").textContent =
               "Error: " + err.message;
           });
-
-        // Send API request
-        fetch('http://localhost:3000/get_score', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(productData)
-        })
-          .then(response => response.json())
-          .then(data => {
-            console.log("API response:", data);
-
-            // Hide the loading GIF
-            loadingDiv.style.display = 'none';
-
-            // Show the avg and result sections
-            avgDiv.style.display = 'block';
-            resultDiv.style.display = 'block';
-
-            // Render the data in the avg and result divs
-            renderSustainabilityDashboard(data, result);
-          })
-          .catch(error => {
-            console.log("API error:", error.message);
-            loadingDiv.style.display = 'none';
-            analyzeBtn.style.display = 'block'; // Show button back in case of error
-            resultDiv.style.display = 'block';
-            resultDiv.textContent = 'Error: ' + error.message;
-          });
+        
       });
     });
   });
@@ -112,7 +159,8 @@ function renderSustainabilityDashboard(data, result) {
   avgDiv.innerHTML = ''; // Clear previous content in avg div
   resultDiv.innerHTML = ''; // Clear previous content in result div
 
-  let totalScore = 0;
+  let totalScore = result.score * 100;
+  console.log(result.score);
 
   // Calculate the total score
   Object.entries(data).forEach(([_, { score }]) => {
