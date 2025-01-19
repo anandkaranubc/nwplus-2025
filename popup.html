@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
-  <head>
+  <head >
+    <meta charset="UTF-8">
     <title>Silly</title>
     <style>
       body {
@@ -9,7 +10,7 @@
         padding: 10px;
         font-family: Arial, sans-serif;
         color: #333;
-        background-color: #f9f9f9;
+        background-color: #ffffff ;
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
@@ -33,6 +34,7 @@
       }
     
       #result {
+        display: none;
         margin-top: 20px;
         font-size: 14px;
         background-color: white;
@@ -41,11 +43,54 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
     
-      .loading {
-        display: none;
-        margin: 10px 0;
-        color: #777;
-        font-size: 14px;
+      #loading {
+        display: none; /* Initially hidden */
+        width: 100px; /* Width of the GIF */
+        height: 100px; /* Height of the GIF */
+        background: url('trees.gif') center center no-repeat; /* Center the GIF */
+        background-size: cover; /* Ensure the image covers the div */
+        margin: 20px auto; /* Center it horizontally and add space below the logo */
+        position: static; /* Ensure it follows the document flow */
+      }
+
+      .circular-progress-container {
+        display: flex;
+        justify-content: center; /* Center horizontally */
+        align-items: center; /* Center vertically */
+        margin-bottom: 20px;
+        position: relative;
+        width: 100%; /* Ensure it takes the full width of the parent container */
+      }
+
+      .circular-progress {
+        display: flex !important; /* Enable flexbox for the circular progress */
+        justify-content: center; /* Center the content horizontally */
+        align-items: center; /* Center the content vertically */
+        width: 170px; /* Set the width of the circle */
+        height: 170px; /* Set the height of the circle */
+        background: conic-gradient(
+          var(--progress-color, #4CAF50) var(--progress, 0%), 
+          #e0e0e0 0%
+        );
+        border-radius: 50%; /* Make it circular */
+        position: relative;
+        margin: 0 auto;
+      }
+
+      .circular-progress::before {
+        content: "";
+        position: absolute;
+        width: 130px;
+        height: 130px;
+        background: #fff;
+        border-radius: 50%; /* Inner circle for a donut effect */
+      }
+      .progress-text {
+        position: absolute;
+        font-size: 25px; /* Adjusted for larger circle */
+        font-weight: bold;
+        color: #333;
+        text-align: center; /* Center the text */
       }
     
       .logo {
@@ -129,8 +174,9 @@
       <img src="leaf.png" width="40" height="40" alt="Logo">
       <span class="logo-text">SILLY</span>
     </div>
-    <button id="analyzeBtn">Analyze Product</button>
-    <div id="loading" class="loading">Analyzing...</div>
+    <div id="loading" class="loading"></div>
+    <button id="analyzeBtn">Check Silly Score</button>
+    <div id="avg" class="circular-progress-container"></div>
     <div id="result"></div>
     <script src="popup.js"></script>
   </body>
