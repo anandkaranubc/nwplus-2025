@@ -46,6 +46,3 @@ function scrapeProductData() {
     companyName,
   };
 }
-
-const productData = scrapeProductData();
-console.log('Scraped Product Data:', productData);
